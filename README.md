@@ -78,7 +78,7 @@ The guided walkthrough lives in [`docs/`](docs) and is meant to be followed in o
 * [`docs/01-naive-agent.md`](docs/01-naive-agent.md) — Pattern 1: the in-process baseline and where it breaks
 * [`docs/02-worker-agents.md`](docs/02-worker-agents.md) — Pattern 2: queue + worker; **hand-write the ack/retry semantics** in `kv.ts`
 * [`docs/03-workflow-agents.md`](docs/03-workflow-agents.md) — Pattern 3: the same fan-out as declarative Render tasks
-* [`docs/04-author-a-task.md`](docs/04-author-a-task.md) — the hands-on finale: author the `quick-review` task and compose an agent as its own task
+* [`docs/04-author-a-task.md`](docs/04-author-a-task.md) — the hands-on finale: explore the `your-review` sandbox and compose agents as tasks
 * [`docs/code-review-setup.md`](docs/code-review-setup.md) — reference for the `code-review` workflow, GitHub webhooks, and agent roles
 
 The two interactive beats:
@@ -86,8 +86,8 @@ The two interactive beats:
 * **Session 1 — hand-roll coordination.** In worker-agents you implement `processEntry` in
   [`packages/worker-agents/src/kv.ts`](packages/worker-agents/src/kv.ts) by hand: ack on
   success, leave un-acked for retry on failure. Verify with `npm run test:worker`.
-* **Session 2 — let agents author tasks.** In workflow-agents you point a coding agent at the
-  `YOUR TURN` block in `quick-review` and feel how small the `task()` API surface is —
+* **Session 2 — let agents author tasks.** In workflow-agents you explore the
+  `your-review` sandbox and feel how small the `task()` API surface is —
   the same durability that took a whole queue in Session 1 is now a config object.
 
 ## Repository Structure

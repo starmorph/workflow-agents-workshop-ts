@@ -42,7 +42,7 @@ interface CodeReviewInput {
 export default task(
   { name: "code-review", timeoutSeconds: 600 },
   async function codeReview(input: CodeReviewInput) {
-    const meta = input._runId ? { _runId: input._runId } : {};
+    const runId = input._runId;
 
     // Deterministic steps run in-process; agents run as chained Render tasks.
     const allPatches = await prepareDiff({ url: input.url, labels: input.labels ?? [] });
@@ -60,12 +60,12 @@ export default task(
 
     const reviews = await Promise.all(
       reviewerTasks.map(async ({ name, run }) => {
-        const result = await run({ input: { patches }, ...meta });
+        const result = await run({ patches }, runId);
         return { agent: name, note: result.text };
       }),
     );
 
-    const decision = await judgeTask({ input: { findings: reviews }, ...meta });
+    const decision = await judgeTask({ findings: reviews }, runId);
     const parsed = parseDecision(decision.text);
 
     return { verdict: parsed.verdict, reason: parsed.reason, reviews };

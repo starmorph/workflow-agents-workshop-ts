@@ -1,7 +1,7 @@
 # 04 — Author a task (the hands-on finale)
 
-> This is the half where coding agents come out. Point yours at the `YOUR TURN`
-> block below and let it build on the task — the API is small enough that an agent
+> This is the half where coding agents come out. Open `your-review` and treat it
+> as a sandbox — extend it however you like. The API is small enough that an agent
 > reasons about it trivially. (In Session 1 you hand-wrote the worker's acks; here
 > the goal is to feel how agent-native this is.)
 
@@ -12,11 +12,11 @@ import { task } from "@renderinc/sdk/workflows";
 
 export default task(
   {
-    name: "quick-review",
+    name: "your-review",
     timeoutSeconds: 120,
     retry: { maxRetries: 2, waitDurationMs: 1000, backoffScaling: 2 },
   },
-  async function quickReview(input) {
+  async function yourReview(input) {
     // ...your logic...
   },
 );
@@ -42,8 +42,9 @@ plain function — no `task()` needed.
 
 ## Your turn
 
-Open [`packages/workflow-agents/src/workflows/quick-review/index.ts`](../packages/workflow-agents/src/workflows/quick-review/index.ts).
-It's already a working task. You'll extend it to compose an agent as its own task.
+Open [`packages/workflow-agents/src/workflows/your-review/index.ts`](../packages/workflow-agents/src/workflows/your-review/index.ts).
+It's a working sandbox that fetches a PR and returns an overview. Explore from there —
+the file ends with commented ideas, not a prescribed fill-in.
 
 ### 1. Run what's there
 
@@ -58,7 +59,7 @@ In terminal B:
 
 ```sh
 render workflows tasks list --local
-# choose quick-review → run → input: { "url": "https://github.com/<owner>/<repo>/pull/<n>" }
+# choose your-review → run → input: { "url": "https://github.com/<owner>/<repo>/pull/<n>" }
 ```
 
 You just authored and ran a task. Note: you never registered it anywhere —
@@ -66,8 +67,7 @@ You just authored and ran a task. Note: you never registered it anywhere —
 
 ### 2. Compose an agent as a task
 
-Fill in the `YOUR TURN` block so the workflow also runs the security reviewer **as
-its own task** and returns its findings:
+Pick one reviewer and run it as its own isolated task. Example — security:
 
 ```ts
 import { securityReviewer } from "@workshop/agent";
@@ -75,14 +75,13 @@ import { agentTask } from "../../agentTask.js";
 
 const securityTask = agentTask(securityReviewer);
 
-// inside quickReview, after `summary`:
-const meta = input._runId ? { _runId: input._runId } : {};
-const review = await securityTask({ input: { patches }, ...meta });
-return { summary, review: review.text };
+// inside yourReview, after you have `filtered.patches`:
+const review = await securityTask({ patches: filtered.patches });
+return { ...existingReturn, review: review.text };
 ```
 
 Re-run. In the Render Dashboard trace (or the `render workflows dev` output)
-you'll see `quick-review` with a nested `security` agent task, its LLM turns, and
+you'll see `your-review` with a nested `security` agent task, its LLM turns, and
 token usage.
 
 ### 3. See the power: force a retry
@@ -104,12 +103,21 @@ Swap the single reviewer for both, in parallel:
 import { REVIEWERS } from "@workshop/agent";
 const reviewerTasks = REVIEWERS.map(agentTask);
 const reviews = await Promise.all(
-  reviewerTasks.map((run) => run({ input: { patches }, ...meta })),
+  reviewerTasks.map((run) => run({ patches: filtered.patches })),
 );
 ```
 
 That's the same fan-out as the built-in `code-review` workflow — compare your file
 to [`code-review/index.ts`](../packages/workflow-agents/src/workflows/code-review/index.ts).
+
+### 5. Go further (optional)
+
+The sandbox is intentionally open-ended. Some directions:
+
+- Add `parseDecision` + `judge` for a full verdict (mirror `code-review`).
+- Use `selectReviewers` / `hasFrontendFiles` for conditional UX review.
+- Add a custom tool in `shared/agent/src/tools/` and wire it to an agent.
+- Return raw patch previews for debugging, or strip them to keep output small.
 
 ## The takeaway
 

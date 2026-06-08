@@ -283,15 +283,15 @@ This is the highest-value segment. **Now coding agents come out.** The `task()` 
 is small enough that an agent reasons about it trivially — the goal is to feel how
 agent-native this substrate is.
 
-- **Starter:** [`quick-review/index.ts`](../packages/workflow-agents/src/workflows/quick-review/index.ts)
-  is already a working task. It auto-discovered with zero registration.
+- **Starter:** [`your-review/index.ts`](../packages/workflow-agents/src/workflows/your-review/index.ts)
+  is already a working sandbox. It auto-discovered with zero registration.
 - **Sequence (each step has a payoff):**
-  1. **Run what's there.** `render workflows tasks list --local` → `quick-review` →
+  1. **Run what's there.** `render workflows tasks list --local` → `your-review` →
      run with `{ "url": "...pull/<n>" }`. Payoff: "you authored a task and never
      registered it anywhere — `loader.ts` found it because the folder exists."
-  2. **Compose an agent as a task.** Fill the `YOUR TURN` block to run the security
-     reviewer as its own task and return its findings. Encourage learners to point
-     their coding agent (Cursor/Claude/etc.) at the block.
+  2. **Compose an agent as a task.** Extend the sandbox to run a reviewer as its own
+     task and return its findings. Encourage learners to point their coding agent
+     (Cursor/Claude/etc.) at the ideas at the bottom of the file.
   3. **See the power — force a retry.** Add `if (Math.random() < 0.5) throw new
      Error("flaky!")` at the top of the body. Re-run a few times; watch Render retry
      in a fresh instance per the `retry` config — no try/catch, no dead-letter, no
@@ -305,7 +305,7 @@ agent-native this substrate is.
   learner's agent writes `.ts`, it'll fail to resolve.
 - **CFU:** "What's the difference between a *step* and a *task* here?" (A step is a
   plain function for pure logic; a task is wrapped in `task()` for isolation/retries/
-  traces. See `summarize()` vs the exported task in `quick-review`.)
+  traces. See `overview()` vs the exported task in `your-review`.)
 - **Solution:** §8 and [`docs/04-author-a-task.md`](../docs/04-author-a-task.md).
 
 ### Module 4 — Deploy & close (10 min, optional deploy)
@@ -330,7 +330,7 @@ LAB 1        implement processEntry → npm run test:worker (red→green)
 ── break ──
 Pattern 3    dev:workflows → run code-review → show agentTask.ts + Promise.all
              → side-by-side fan-out table
-LAB 2        run quick-review → compose agent → force retry → fan out (bonus)
+LAB 2        run your-review → compose agent → force retry → fan out (bonus)
 Close        re-draw spine: "the agent never changed"
 ```
 
@@ -357,7 +357,7 @@ Common conceptual questions:
 - **"Why hand-write acks if Workflows does it?"** So you understand what the
   platform is doing *for* you. The lab is the setup for the payoff.
 - **"Is a step the same as a task?"** No — a step is plain logic (no `task()`); a
-  task gets isolation/retries/traces. Show `summarize()` vs the exported task.
+  task gets isolation/retries/traces. Show `overview()` vs the exported task.
 
 ---
 
@@ -386,7 +386,7 @@ Why it's correct: the `xack` is *inside* the `try`, after a successful handler, 
 failure skips it and the message stays pending. The `catch` logs and returns —
 never rethrows — so the blocking consumer loop in `consumeReviews` keeps running.
 
-### Lab 2 — `quick-review` YOUR TURN (compose an agent as a task)
+### Lab 2 — `your-review` (compose an agent as a task)
 
 ```ts
 import { securityReviewer } from "@workshop/agent";
@@ -394,10 +394,9 @@ import { agentTask } from "../../agentTask.js";
 
 const securityTask = agentTask(securityReviewer);
 
-// inside quickReview, after `summary`:
-const meta = input._runId ? { _runId: input._runId } : {};
-const review = await securityTask({ input: { patches }, ...meta });
-return { summary, review: review.text };
+// inside yourReview, after you have filtered.patches:
+const review = await securityTask({ patches: filtered.patches });
+return { ...existingReturn, review: review.text };
 ```
 
 Bonus (fan out both reviewers):
@@ -406,7 +405,7 @@ Bonus (fan out both reviewers):
 import { REVIEWERS } from "@workshop/agent";
 const reviewerTasks = REVIEWERS.map(agentTask);
 const reviews = await Promise.all(
-  reviewerTasks.map((run) => run({ input: { patches }, ...meta })),
+  reviewerTasks.map((run) => run({ patches: filtered.patches })),
 );
 ```
 

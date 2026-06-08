@@ -8,27 +8,28 @@
  *
  * Agent spans are written to the shared telemetry store (@workshop/db) via
  * storeTracer — the same store the telemetry viewer reads — so a run's spans
- * show up alongside its findings.
+ * show up alongside its findings when a runId is provided.
+ *
+ * Invoke as `task(agentInput)` or `task(agentInput, runId)` — the optional runId
+ * links spans to a review row in the telemetry viewer (used by code-review from
+ * the gateway; CLI sandbox runs omit it).
  */
 import { task } from "@renderinc/sdk/workflows";
 import { storeTracer } from "@workshop/db";
 import type { Agent, AgentInput, AgentResult } from "@workshop/agent";
 
-interface AgentInvocation {
-  input: AgentInput;
-  _runId?: string;
-}
+export type AgentTaskRun = (input: AgentInput, runId?: string) => Promise<AgentResult>;
 
-export function agentTask(agent: Agent) {
+export function agentTask(agent: Agent): AgentTaskRun {
   return task(
     {
       name: agent.name,
       ...(agent.budget?.maxWallSeconds ? { timeoutSeconds: agent.budget.maxWallSeconds } : {}),
     },
-    async function agentRun(invocation: AgentInvocation): Promise<AgentResult> {
-      return agent.run(invocation.input, {
+    async function agentRun(input: AgentInput, runId?: string): Promise<AgentResult> {
+      return agent.run(input, {
         tracer: storeTracer(),
-        ...(invocation._runId ? { runId: invocation._runId } : {}),
+        ...(runId ? { runId } : {}),
       });
     },
   );

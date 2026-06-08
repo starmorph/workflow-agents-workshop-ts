@@ -9,9 +9,9 @@ const workflowsDir = new URL(
 
 test('loadWorkflows auto-discovers the workflow folders', async () => {
   const { mapping, localTasks } = await loadWorkflows(workflowsDir)
-  assert.deepEqual(Object.keys(mapping).sort(), ['code-review', 'quick-review'])
+  assert.deepEqual(Object.keys(mapping).sort(), ['code-review', 'your-review'])
   assert.equal(typeof localTasks['code-review'], 'function')
-  assert.equal(typeof localTasks['quick-review'], 'function')
+  assert.equal(typeof localTasks['your-review'], 'function')
   // Slugs are derived as "{service}/{folder}".
   assert.match(mapping['code-review'] ?? '', /\/code-review$/)
 })

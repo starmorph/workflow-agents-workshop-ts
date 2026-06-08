@@ -42,7 +42,7 @@ route. Two ship today:
 | Workflow | Description |
 |---|---|
 | `code-review` | Multi-agent PR review: `prepareDiff → filterDiff → [security ‖ performance ‖ ux?] → judge`. |
-| `quick-review` | The author-a-task starter for the hands-on finale (see [docs/04](../../docs/04-author-a-task.md)). |
+| `your-review` | Open-ended sandbox for the hands-on finale (see [docs/04](../../docs/04-author-a-task.md)). |
 
 ## Run locally
 
@@ -87,7 +87,7 @@ src/
   workflows/
     loader.ts        workflow auto-discovery
     code-review/     the multi-agent review workflow
-    quick-review/    author-a-task starter (the finale)
+    your-review/     open-ended sandbox for the finale
 ```
 
 **Routes**

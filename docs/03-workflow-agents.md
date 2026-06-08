@@ -70,7 +70,7 @@ This package consumes `@workshop/agent` directly — the **same** `REVIEWERS` an
 
 ```ts
 // the entire difference between workflow-agents and naive-agent/worker-agents:
-task(agent.name, ({ input }) => agent.run(input, { tracer, runId }))
+task(agent.name, (input, runId?) => agent.run(input, { tracer, runId }))
 ```
 
 `agent.run()` is identical everywhere; wrapping it in `task()` is what buys
@@ -84,6 +84,6 @@ server (`defineMcpSource`) makes it available to all three patterns at once.
 ## Now author your own
 
 The agents are a library you *use*; the thing you *write* is tasks. Head to
-[04 — Author a task](04-author-a-task.md) and build the `quick-review` workflow:
+[04 — Author a task](04-author-a-task.md) and build the `your-review` workflow:
 a task with retry/timeout config, a deterministic step, and an agent composed as
 its own task — all auto-discovered.

@@ -103,7 +103,7 @@ export async function createApp(): Promise<Hono> {
   app.get("/healthz", (c) => c.json({ ok: true }));
 
   // The single trigger for a code review (same shape as Patterns 1 & 2). Authored
-  // workflows like quick-review are run via the Render CLI (`render workflows dev`).
+  // workflows like your-review are run via the Render CLI (`render workflows dev`).
   app.post("/api/reviews", async (c) => {
     if (!mapping["code-review"]) return c.json({ error: "code-review not available" }, 503);
     const body = (await c.req.json().catch(() => ({}))) as { prUrl?: string };

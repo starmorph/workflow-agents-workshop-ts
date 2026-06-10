@@ -18,14 +18,7 @@ Hello. I am < Intro yourself >. Today, we're going to build and deploy agents on
 
 ---
 
-## Slide 2 — The hook
-
-**One agent pipeline. Three execution substrates.**
-
-- A PR goes in. A verdict comes out.
-- `prepareDiff → filterDiff → [ security ‖ performance ‖ ux? ] → judge`
-- Four specialist agents with tools and an LLM loop
-- What will change is *where* and *how* it runs
+## Slide 2 — Why this matters now
 
 **Agent orchestration is a workflow problem first, an AI problem second.**
 
@@ -33,7 +26,20 @@ Hello. I am < Intro yourself >. Today, we're going to build and deploy agents on
 - The hard parts: orchestration, observability, durability, retries, isolation, scale
 - The question: how much of this infrastructure do you own?
 
-Same agent. Same review pipeline. Three execution substrates.
+**Notes**
+
+Agents are shipping to production this year. The hard part is everything around the model call — making a multi-step chain survive a crash, retrying one failed tool call without replaying the whole run, scaling workloads independently. So the question becomes: how much of that infrastructure do you build and maintain yourself? That question is the spine of today: we'll answer it three times, shifting more of the substrate to the platform each pass.
+
+---
+
+## Slide 3 — One pipeline, three substrates
+
+**The thing we build once, and run three ways**
+
+- A PR goes in. A verdict comes out.
+- `prepareDiff → filterDiff → [ security ‖ performance ‖ ux? ] → judge`
+- Four specialist agents with tools and an LLM loop
+- What changes is *where* and *how* it runs — never the agent
 
 | Pattern | Substrate | Orchestration | Failure mode | Scale |
 | --- | --- | --- | --- | --- |
@@ -43,15 +49,11 @@ Same agent. Same review pipeline. Three execution substrates.
 
 **Notes**
 
-We have one code-review pipeline: fetch a PR, filter out noise, fan out specialist reviewers in parallel, then a judge consolidates findings into an approve-or-request-changes verdict. The agents are defined once in a shared package. What changes is the the infrastructure that runs them. 
-
-Agents are shipping to production this year. The hard part is everything around the model call - making a multi-step chain survive a crash, retrying one failed tool call without replaying the whole run, scaling workloads independently. So the question becomes: how much of that infrastructure do you build and maintain yourself? 
-
-I want you to hold this picture in your head for the entire workshop. The agents are the constant. The bottom three rows are the variables — the substrate. Pattern 1 has a web service and database, but no separate orchestration layer. Pattern 2 is powerful, but you own the queue and coordination code. Pattern 3 gives you the same power with managed orchestration. We're going to build each one and feel the difference.
+We have one code-review pipeline: fetch a PR, filter out noise, fan out specialist reviewers in parallel, then a judge consolidates findings into an approve-or-request-changes verdict. The agents are defined once in a shared package. What changes is the infrastructure that runs them. Hold this table in your head for the entire workshop — the agents are the constant, the substrate is the variable. Pattern 1 has a web service and database, but no separate orchestration layer. Pattern 2 is powerful, but you own the queue and coordination code. Pattern 3 gives you the same power with managed orchestration. We're going to build each one and feel the difference.
 
 ---
 
-## Slide 3 — Setup and first run
+## Slide 4 — Setup and first run
 
 **Get everyone to a working agent before the first lab**
 
@@ -82,7 +84,7 @@ This is an npm workspaces monorepo. Every pattern imports the same agents, the s
 
 ---
 
-## Slide 4 — Pattern 1: The naive agent
+## Slide 5 — Pattern 1: The naive agent
 
 **The simplest thing that works**
 
@@ -105,7 +107,7 @@ This is the starting point every agent tutorial gives you. The handler awaits th
 
 ---
 
-## Slide 5 — Break it
+## Slide 6 — Break it
 
 **Three ways Pattern 1 fails**
 
@@ -119,7 +121,7 @@ DEMO: Talk through submitting a large PR — the request hangs. Or talk through 
 
 ---
 
-## Slide 6 — Pattern 2: Queue + Worker
+## Slide 7 — Pattern 2: Queue + Worker
 
 ```mermaid
 flowchart LR
@@ -141,7 +143,7 @@ DEMO: Submit a PR and get back 202 immediately. Tail the worker logs — the rev
 
 ---
 
-## Slide 7 — The price of durability
+## Slide 8 — The price of durability
 
 **Everything in `kv.ts` is coordination code you now own**
 
@@ -158,7 +160,7 @@ The stream. The consumer group. Blocking reads. Message acknowledgements. Retrie
 
 ---
 
-## Slide 8 — Lab 1: Hand-write message acknowledgements
+## Slide 9 — Lab 1: Hand-write message acknowledgements
 
 **Implement `processEntry` in `kv.ts`**
 
@@ -182,7 +184,7 @@ This is Session 1's hands-on. Open `processEntry` in `packages/worker-agents/src
 
 ---
 
-## Slide 9 — Pattern 3: Render Workflows
+## Slide 10 — Pattern 3: Render Workflows
 
 **Same fan-out. Zero coordination code.**
 
@@ -210,7 +212,7 @@ This is the payoff. Same pipeline, same agents, same tools. But now every review
 
 ---
 
-## Slide 10 — The bridge: `agentTask.ts`
+## Slide 11 — The bridge: `agentTask.ts`
 
 ```ts
 task(agent.name, async (input, runId?) => {
@@ -254,7 +256,7 @@ This is the entire API surface. A config object and a function. Name, timeout, r
 
 ---
 
-## Slide 11 — Lab 2: Author a task
+## Slide 12 — Lab 2: Author a task
 
 **Your turn — extend `your-review`**
 
@@ -275,7 +277,7 @@ Open `your-review/index.ts`. It fetches a diff and returns an overview. It's you
 
 ---
 
-## Slide 12 — What you just built
+## Slide 13 — What you just built
 
 **A durable, traced, multi-agent workflow**
 
@@ -290,7 +292,7 @@ The only infrastructure you wrote was a function and a config object. Everything
 
 ---
 
-## Slide 13 — Where to go from here
+## Slide 14 — Where to go from here
 
 **The production frontier**
 
@@ -302,7 +304,7 @@ The only infrastructure you wrote was a function and a config object. Everything
 
 ---
 
-## Slide 14 — The takeaway
+## Slide 15 — The takeaway
 
 - Pattern 1: simple, but fragile
 - Pattern 2: powerful, but you own the hard parts

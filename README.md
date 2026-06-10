@@ -19,9 +19,9 @@ and the guided walkthrough in [`docs/`](docs).
 
 | Pattern | Package | Substrate | Render primitives | You own |
 | --- | --- | --- | --- | --- |
-| **1 — Naive** | [`packages/naive-agent`](packages/naive-agent) | Agent runs in-process, inside the web request | Web Service + Postgres | Nothing, but no scale or durability |
-| **2 — Worker** | [`packages/worker-agents`](packages/worker-agents) | Thin producer + background worker over a Valkey queue | Web Service + Background Worker + Key Value + Postgres | The queue, consumer group, acks, retries, and pub/sub |
-| **3 — Workflows** | [`packages/workflow-agents`](packages/workflow-agents) | Each agent is a Render `task()` in its own container | Web Service + Workflows + Postgres | Nothing. Render does the coordination |
+| **1. Naive** | [`packages/naive-agent`](packages/naive-agent) | Agent runs in-process, inside the web request | Web Service + Postgres | Nothing, but no scale or durability |
+| **2. Worker** | [`packages/worker-agents`](packages/worker-agents) | Thin producer + background worker over a Valkey queue | Web Service + Background Worker + Key Value + Postgres | The queue, consumer group, acks, retries, and pub/sub |
+| **3. Workflows** | [`packages/workflow-agents`](packages/workflow-agents) | Each agent is a Render `task()` in its own container | Web Service + Workflows + Postgres | Nothing. Render does the coordination |
 
 The agent code lives in the shared [`@workshop/agent`](shared/agent) package. The substrate decides how it is invoked.
 

@@ -2,18 +2,18 @@
 # Builds from the repo root so the npm workspaces resolve.
 
 projects:
-  - name: agents-workshop-naive
+  - name: starmorph-agents-workshop-naive
     environments:
       - name: production
         databases:
-          - name: naive-agent-db
+          - name: starmorph-naive-agent-db
             plan: basic-256mb
             region: oregon
             postgresMajorVersion: "18"
 
         services:
           - type: web
-            name: naive-agent
+            name: starmorph-naive-agent
             runtime: node
             region: oregon
             plan: starter
@@ -23,7 +23,7 @@ projects:
             envVars:
               - key: DATABASE_URL
                 fromDatabase:
-                  name: naive-agent-db
+                  name: starmorph-naive-agent-db
                   property: connectionString
               # Optional — without a key the agent uses a mock model.
               - key: ANTHROPIC_API_KEY
